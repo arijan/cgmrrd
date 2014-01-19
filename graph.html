@@ -1,0 +1,279 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="canvasjs/canvasjs.min.js"></script>
+        <script type="text/javascript">
+
+        var cgmresults;
+        var jsonsource = "./cgmresults.json";
+
+        window.onload = function () {
+                var chart;
+                var dps, dpsavg;   //dataPoints.
+                var tem;
+
+                $.getJSON(jsonsource, function(data) {
+                        cgmresults = data;
+                        createData();
+                        updateData();
+                        createChart();
+                        renderChart();
+                        var updateInterval = 300000;
+                        setInterval(function(){updateChart()}, updateInterval);
+                });
+
+                var createData = function () {
+                        var h, g;
+
+                        dps = [];
+                        dpsavg = [];
+                        tem = [];
+
+
+                        for (h=0; h<cgmresults.hosts.length; h++) {
+                                dps[h] = [];
+                                dpsavg[h] = [];
+                                tem[h] = [];
+
+                                for (g=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++) {
+                                        dps[h][g] = [];
+                                        tem[h][g] = [];
+                                };
+                        };
+                };
+
+                var updateData = function () {
+                        var i, g, h, r, t, avg, c;
+
+                        for (h=0; h<cgmresults.hosts.length; h++) {
+                                for (g=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++) {
+                                        if (cgmresults.hosts[h].Devs.DEVS[g]["is hashing"]) {
+                                                avg = 0; c = 0;
+
+                                                for (i=0, t=cgmresults.hosts[h].HashrateHistory[0][0]; i<cgmresults.hosts[h].HashrateHistory[2].length; i++, t += cgmresults.hosts[h].HashrateHistory[0][2]) {
+                                                        r = cgmresults.hosts[h].HashrateHistory[2][i][g];
+
+                                                        if (r != null) {
+                                                                avg += r; c++;
+                                                                dps[h][g][i] = { x: new Date(t*1000), y: Math.round(r*65.536) };
+                                                        } else
+                                                                dps[h][g][i] = { x: new Date(t*1000) };
+                                                };
+
+                                                if (c) avg /= c;
+
+                                                dpsavg[h][g] = avg;
+
+                                                for (i=0, t=cgmresults.hosts[h].TemperatureHistory[0][0]; i<cgmresults.hosts[h].TemperatureHistory[2].length; i++, t += cgmresults.hosts[h].TemperatureHistory[0][2]) {
+                                                        r = cgmresults.hosts[h].TemperatureHistory[2][i][g];
+
+                                                        if ( r != null) {
+                                                                tem[h][g][i] = { x: new Date(t*1000), y: Math.round(r*10)/10 };
+                                                        } else {
+                                                                tem[h][g][i] = { x: new Date(t*1000) };
+                                                        };
+                                                };
+                                        };
+                                };
+                        };
+                };
+
+                var createChart = function () {
+                        var i, h, g, gchart, totalhash, chartindex = 0, chartdata = [];
+
+                        chart = [];
+
+                        var cdm1 = [[121, 28, 135], [110, 28, 144], [100, 29, 153], [90, 30, 161], [80,
+                                        30, 170], [76, 37, 177], [72, 44, 184], [68, 51, 190], [64, 58,
+                                        197], [64, 66, 200], [63, 75, 203], [63, 84, 206], [62, 92,
+                                        209], [64, 101, 208], [65, 109, 207], [67, 117, 206], [68, 125,
+                                        205], [71, 131, 201], [73, 137, 197], [76, 144, 193], [78, 150,
+                                        189], [82, 154, 183], [85, 159, 177], [89, 163, 171], [92, 168,
+                                        165], [97, 171, 159], [101, 174, 152], [106, 177, 145], [110, 180,
+                                        138], [115, 181, 132], [121, 183, 126], [126, 185, 119], [131, 187,
+                                        113], [137, 188, 108], [143, 189, 102], [150, 190, 97], [156, 190,
+                                        92], [162, 190, 88], [168, 190, 84], [174, 190, 80], [180, 190,
+                                        77], [186, 189, 74], [192, 187, 72], [198, 186, 69], [203, 185,
+                                        67], [208, 181, 65], [212, 178, 64], [217, 175, 62], [221, 172,
+                                        61], [223, 166, 59], [226, 160, 58], [228, 155, 57], [231, 149,
+                                        55], [231, 141, 54], [231, 133, 52], [231, 124, 51], [231, 116,
+                                        49], [230, 106, 47], [228, 96, 45], [226, 85, 43], [225, 75,
+                                        41], [223, 65, 39], [222, 54, 37], [221, 44, 36], [219, 34, 34]];
+
+                        cdm2 = [[120, 0, 4], [126, 2, 4], [131, 4, 4], [137, 6, 3], [143, 8,
+                                        3], [148, 10, 3], [154, 12, 3], [160, 14, 3], [165, 16, 3], [171,
+                                        18, 2], [177, 20, 2], [182, 22, 2], [188, 23, 2], [194, 25,
+                                        2], [199, 27, 1], [205, 29, 1], [210, 31, 1], [213, 35, 1], [215,
+                                        39, 2], [218, 43, 2], [220, 48, 3], [222, 52, 3], [225, 56,
+                                        4], [227, 60, 4], [229, 64, 5], [232, 68, 5], [234, 72, 6], [236,
+                                        76, 6], [239, 80, 6], [241, 84, 7], [244, 88, 7], [246, 92,
+                                        8], [248, 96, 8], [249, 101, 9], [249, 105, 10], [250, 109,
+                                        11], [250, 114, 11], [251, 118, 12], [251, 122, 13], [252, 127,
+                                        14], [252, 131, 14], [253, 135, 15], [253, 140, 16], [254, 144,
+                                        17], [254, 148, 17], [255, 153, 18], [255, 157, 19], [256, 161,
+                                        20], [256, 166, 21], [256, 168, 21], [256, 171, 22], [256, 174,
+                                        23], [256, 177, 24], [256, 179, 24], [256, 182, 25], [256, 185,
+                                        26], [256, 188, 27], [256, 191, 27], [256, 193, 28], [256, 196,
+                                        29], [256, 199, 30], [256, 202, 30], [256, 204, 31], [256, 207,
+                                        32], [256, 210, 33]];
+
+                        $(document.body).append("<h1>CgminerRRD (2013)</h1>");
+                        $(document.body).append("<p id=\"updatedField\">Updated: "+new Date()+"</p>");
+                        $(document.body).append("<button id=\"refreshButton\" style=\"background-color:orange\">Refresh</button>");
+                        $("#refreshButton").click( function() {
+                                updateChart();
+
+                        });
+
+                        $(document.body).append("<div id=\"chartContainer"+chartindex+"\" style=\"height: 300px; width: 100%; float: left;\"></div>");
+                        chartdata[chartindex] = [];
+                        totalhash = 0;
+
+                        for (h=0, gchart=0; h<cgmresults.hosts.length; h++)
+                                for (g=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++)
+                                        if (cgmresults.hosts[h].Devs.DEVS[g]["is hashing"]) {
+                                                chartdata[chartindex][gchart] = {
+                                                        type: "stackedArea",
+                                                        name: "GPU"+gchart+" Avg: "+Math.round(dpsavg[h][g]*65.536),
+                                                        showInLegend: "true",
+                                                        dataPoints : dps[h][g]
+                                                };
+                                                totalhash += dpsavg[h][g];
+                                                gchart++;
+                                        };
+
+                        for (i=0, g=Math.floor(cdm1.length/gchart); gchart; gchart--, i+=g)
+                                 chartdata[chartindex][gchart-1].color = "rgba("+cdm1[i][0]+","+cdm1[i][1]+","+cdm1[i][2]+", .8)";
+
+                        chart[chartindex] = new CanvasJS.Chart("chartContainer"+chartindex, {
+                                creditText: "",
+                                zoomEnabled: true,
+                                toolTip: {
+                                        shared: "true"
+                                },
+                                title :{
+                                        text: "Total average hash rate: "+Math.round(totalhash*65.536),
+                                        horizontalAlign: "left"
+                                },
+                                axisX: {
+                                },
+                                axisY: {
+                                        title: "kH/s"
+                                },
+                                legend: {
+                                        verticalAlign: "bottom",
+                                        horizontalAlign: "left",
+                                        fontSize: 12
+                                },
+                                data: chartdata[chartindex]
+                        });
+
+
+                        for (h=0; h<cgmresults.hosts.length; h++) {
+                                chartindex++;
+                                $(document.body).append("<div id=\"chartContainer"+chartindex+"\" style=\"height: 260px; width: 50%; float: left;\"></div>");
+                                chartdata[chartindex] = [];
+                                totalhash = 0;
+
+                                for (g=0, gchart=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++)
+                                        if (cgmresults.hosts[h].Devs.DEVS[g]["is hashing"]) {
+                                                chartdata[chartindex][gchart] = {
+                                                        type: "stackedArea",
+                                                        name: "GPU"+cgmresults.hosts[h].Devs.DEVS[g].GPU+" Avg: "+Math.round(dpsavg[h][g]*65.536),
+                                                        showInLegend: "true",
+                                                        dataPoints : dps[h][g]
+                                                };
+                                                totalhash += dpsavg[h][g];
+                                                gchart++;
+                                                chartdata[chartindex][gchart] = {
+                                                        type: "line",
+                                                        axisYType: "secondary",
+                                                        name: "GPU"+cgmresults.hosts[h].Devs.DEVS[g].GPU+" Temp",
+                                                        dataPoints : tem[h][g]
+                                                };
+                                                gchart++;
+                                        }
+
+                                for (i=0, g=Math.floor(cdm1.length/gchart*2); gchart; gchart-=2, i+=g) {
+                                        chartdata[chartindex][gchart-1].color = "rgba("+cdm1[i][0]+","+cdm1[i][1]+","+cdm1[i][2]+",.8)";
+                                        chartdata[chartindex][gchart-2].color = "rgba("+cdm2[i][0]+","+cdm2[i][1]+","+cdm2[i][2]+",.8)";
+                                };
+
+                                chart[chartindex] = new CanvasJS.Chart("chartContainer"+chartindex, {
+                                        creditText: "",
+                                        zoomEnabled: true,
+                                        toolTip: {
+                                                shared: "true"
+                                        },
+                                        title :{
+                                                text: cgmresults.hosts[h].hostname+":"+cgmresults.hosts[h].port+", Avg. rate: "+Math.round(totalhash*65.536),
+                                                horizontalAlign: "left"
+                                        },
+                                        axisX: {
+                                        },
+                                        axisY: {
+                                                title: "kH/s"
+                                        },
+                                        axisY2: {
+                                                title: "Deg. C",
+                                                minimum: 70,
+                                                maximum: 90
+                                        },
+                                        legend: {
+                                                verticalAlign: "bottom",
+                                                horizontalAlign: "left",
+                                                fontSize: 12
+                                        },
+                                        data: chartdata[chartindex]
+                                });
+                        };
+                };
+
+                var renderChart = function () {
+                        var h, g, chartindex = 0, gchart, totalhash;
+
+                        for (h=0, gchart=0, totalhash = 0; h<cgmresults.hosts.length; h++)
+                                for (g=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++)
+                                        if (cgmresults.hosts[h].Devs.DEVS[g]["is hashing"]) {
+                                                chart[chartindex].options.data[gchart].name = "GPU"+gchart+" Avg: "+Math.round(dpsavg[h][g]*65.536);
+                                                gchart++;
+                                                totalhash += dpsavg[h][g];
+                                        };
+
+                        chart[chartindex].options.title.text = "Total average hash rate: "+Math.round(totalhash*65.536);
+
+                        for (h=0; h<cgmresults.hosts.length; h++) {
+                                chartindex++;
+
+                                for (g=0, gchart=0, totalhash=0; g<cgmresults.hosts[h].Devs.DEVS.length; g++)
+                                        if (cgmresults.hosts[h].Devs.DEVS[g]["is hashing"]) {
+                                                chart[chartindex].options.data[gchart].name = "GPU"+cgmresults.hosts[h].Devs.DEVS[g].GPU+" Avg: "+Math.round(dpsavg[h][g]*65.536);
+                                                totalhash += dpsavg[h][g];
+                                                gchart += 2;
+                                        };
+
+                                chart[chartindex].options.title.text = cgmresults.hosts[h].hostname+":"+cgmresults.hosts[h].port+", Avg. rate: "+Math.round(totalhash*65.536);
+                        };
+
+                        for (h=0; h<chart.length; h++) {
+                                chart[h].render();
+                        };
+                };
+
+                var updateChart = function () {
+                        $.getJSON(jsonsource, function(data) {
+                                cgmresults = data;
+                                updateData();
+                                renderChart();
+                                document.getElementById("updatedField").innerHTML = "Updated: "+new Date();
+                        });
+                };
+        }
+
+</script>
+</head>
+<body>
+</body>
+</html>
+
