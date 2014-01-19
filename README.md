@@ -54,5 +54,6 @@ Installation:
 
 8. run main.py periodically every 5 minutes either with cron or watch. I use 'watch -n 300 main.py' in a byobu session so that my terminal needs not to be open all the time.
 
-9. point your browser to your laptop and web page with graphs and statistics should appear. I use http://nb250/cgmrrs
+9. point your browser to your laptop and web page with graphs and statistics should appear. I use http://nb250/cgmrrd
 
+10. you can put 'graph.html' file in that directory as well as Free CanvasJS software (www.canvasjs.com) and then point your browser to it (i.e. http://nb250/cgmrrd/graph.html). Graphs.html uses Javascript to create dynamic autorefreshing zoomable overview charts of your miner data.
