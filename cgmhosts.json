@@ -1,0 +1,10 @@
+{
+ "hosts": [
+           { "hostname":"bit.siopti.com", "port":"4028" },
+           { "hostname":"giga.siopti.com" },
+           { "hostname":"coin.siopti.com" },
+           { "hostname":"lite.siopti.com" },
+           { "hostname":"mega.siopti.com" }
+          ],
+ "wwwdir": "/var/www/cgmrrd"
+}
