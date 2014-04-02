@@ -85,10 +85,18 @@ def cgmrrdgetdata():
         print "Generating main html."
 
         mainHTMLfilename = "index.html"
-        cgmrrddotimage = ".png"
         cgmrrdtotalgraphfilename = "totalgraph"
         cgmrrdgraphw = 576
         cgmrrdgraphh = 150
+        usesvg = 0
+
+        if usesvg:
+                fileformatstr = "SVG"
+                cgmrrddotimage = ".svg"
+        else:
+                fileformatstr = "PNG"
+                cgmrrddotimage = ".png"
+
 
         currentlocaltime = strftime("%s", localtime())
         currentlocaltimestring = strftime("%Y-%m-%d_%H:%M:%S", localtime())
@@ -115,7 +123,7 @@ def cgmrrdgetdata():
                 htmltable = HTMLgen.Table(border=0, width=0, cell_align="right", heading=[ "Hostname", "Port", "CGminer Ver", "Work Util", "Pool MHs", "Rejected Shares %", "Total MH", "Found Blocks", "Time" ] )
                 htmltable.body = []
                 htmltable.body.append( [ host["hostname"], host["port"], hoststatus["Description"], hostsummary["Work Utility"], round(float(hostsummary["Work Utility"]) * 0.001092283 * float(hostsummary["Difficulty Accepted"]) / ( 0.0001 + float(hostsummary["Difficulty Accepted"]) + float(hostsummary["Difficulty Rejected"]) ), 3), round( 100.0 * float(hostsummary["Difficulty Rejected"]) / ( 0.0001 + float(hostsummary["Difficulty Accepted"]) + float(hostsummary["Difficulty Rejected"]) ), 2), hostsummary["Total MH"], hostsummary["Found Blocks"], strftime("%a, %d %b %Y %H:%M:%S", localtime(hoststatus["When"] )) ] )
-                htmldoc.append(HTMLgen.Paragraph(htmltable))
+                htmldoc.append(htmltable)
 
                 htmltable = HTMLgen.Table(border=0, width=0, cell_align='right', heading=[ "Status", "Activity %", "Intensity", "Temper. C", "Fan Speed", "Fan Percent", "GPU Clock", "Memory Clock", "Voltage", "MHS 5s", "MHS av", "Difficulty Accepted", "Difficulty Rejected", "Hardware Errors", "Rejected Shares %" ] )
                 htmltable.body = []
@@ -124,7 +132,7 @@ def cgmrrdgetdata():
                         if device["is hashing"]:
                                 htmltable.body.append( [ device["Status"], device["GPU Activity"], device["Intensity"], device["Temperature"], device["Fan Speed"], device["Fan Percent"], device["GPU Clock"], device["Memory Clock"], device["GPU Voltage"], device["MHS 5s"], device["MHS av"], device["Difficulty Accepted"], device["Difficulty Rejected"], device["Hardware Errors"], round(device["Difficulty Rejected"] / ( 0.0001 + device["Difficulty Rejected"] + device["Difficulty Accepted"] ) * 100, 2 ) ] )
 
-                htmldoc.append(HTMLgen.Paragraph(htmltable))
+                htmldoc.append(htmltable)
 
                 htmltable = HTMLgen.Table(border=0, width=0, cell_align='right', heading=[ "Pool", "Priority", "Status", "Difficulty Accepted", "Difficulty Rejected", "Rejected Shares %", "Difficulty Stale", "Remote Failures", "Best Share" ] )
                 htmltable.body = []
@@ -132,7 +140,7 @@ def cgmrrdgetdata():
                 for pool in host["Pools"]["POOLS"]:
                         htmltable.body.append( [ pool["URL"], pool["Priority"], pool["Status"], pool["Difficulty Accepted"], pool["Difficulty Rejected"], round(pool["Difficulty Rejected"] / ( 0.0001 + pool["Difficulty Rejected"] + pool["Difficulty Accepted"] ) * 100, 2 ), pool["Difficulty Stale"], pool["Remote Failures"], pool["Best Share"] ] )
 
-                htmldoc.append(HTMLgen.Paragraph(htmltable))
+                htmldoc.append(htmltable)
 
         try:
                 htmlfile = open(cgmhosts["wwwdir"]+"/"+mainHTMLfilename, "w")
@@ -156,8 +164,9 @@ def cgmrrdgetdata():
         cgmrrdtemperaturefilename = "cgmtemperature"
         cgmrrddotrrd = ".rrd"
         cgmrrdrradefs = ['RRA:AVERAGE:0.5:1:576', 'RRA:AVERAGE:0.5:4:576', 'RRA:AVERAGE:0.5:16:576', 'RRA:AVERAGE:0.5:180:576']
-        cgmrrdcolors = [ "#000070", "#104070", "#106080", "#108060", "#20A040", "#30C020", "#60E020", "#A0D010", "#D8D800", "#D0A010", "#C06010", "#B03000", "#901000", "#A01050", "#701070", "#402040", "#303030", "#5040B0", "#505090", "#808080", "#909090", "#A0A0A0", "#B0B0B0", "#C0C0C0" ]
+        cgmrrdcolors = [ "#000070", "#104090", "#1060A0", "#108060", "#20A040", "#30C020", "#40D010", "#A0D010", "#D8D800", "#D0A010", "#C06010", "#B03000", "#901000", "#A01050", "#701070", "#403040", "#606070", "#808090", "#A0A0B0", "#808080", "#909090", "#A0A0A0", "#B0B0B0", "#C0C0C0" ]
         cgmrrdaveragecolors = [ "#E02020" ]
+        colorindex = 0
 
         for host in cgmhosts["hosts"]:
                 cgmrrdhashratefilenamefull = str(cgmrrdhashratefilename+"_"+host["hostname"]+"_"+host["port"]+cgmrrddotrrd)
@@ -183,17 +192,17 @@ def cgmrrdgetdata():
                         rrdtool.update(cgmrrdhashratefilenamefull, hashratestring)
                 except:
                         print "Cannot update rrd file: "+cgmrrdhashratefilenamefull+" with "+hashratestring
-                        try:
-                                os.path.exists(cgmrrdhashratefilenamefull)
+
+                        if os.path.exists(cgmrrdhashratefilenamefull):
                                 print "Rrd file exsists. Something is wrong."
                                 exit(1)
+
+                        try:
+                                print "Creating rrd file: "+cgmrrdhashratefilenamefull
+                                rrdtool.create(cgmrrdhashratefilenamefull, "--start", currentlocaltime, rrddatasource + cgmrrdrradefs)
                         except:
-                                try:
-                                        print "Creating rrd file: "+cgmrrdhashratefilenamefull
-                                        rrdtool.create(cgmrrdhashratefilenamefull, "--start", currentlocaltime, rrddatasource + cgmrrdrradefs)
-                                except:
-                                        print "Cannot create rrd file: "+cgmrrdhashratefilenamefull+":"+str(rrdtool.error())
-                                        exit(1)
+                                print "Cannot create rrd file: "+cgmrrdhashratefilenamefull+":"+str(rrdtool.error())
+                                exit(1)
 
 ### Fetch RRD HashrateHistory
 
@@ -216,6 +225,7 @@ def cgmrrdgetdata():
                 totalaveragestrings = "VDEF:Average=Total,AVERAGE"
                 totalaveragelinestrings = "LINE1:Average" + cgmrrdaveragecolors[0]
                 index = 0
+                hostcolorindex = colorindex
 
                 for device in host["Devs"]["DEVS"]:
                         indexstr = str(index)
@@ -223,10 +233,11 @@ def cgmrrdgetdata():
                                 defstrings.append(str("DEF:G"+indexstr+"="+cgmrrdhashratefilenamefull+":GPU"+indexstr+":AVERAGE"))
                                 cdefstrings.append(str("CDEF:GPU"+indexstr+"=G"+indexstr+",65536,*"))
                                 averagestrings.append(str("VDEF:avg"+indexstr+"=GPU"+indexstr+",AVERAGE"))
-                                areastrings.append(str("AREA:GPU"+indexstr+cgmrrdcolors[index]+":GPU"+indexstr+":STACK"))
+                                areastrings.append(str("AREA:GPU"+indexstr+cgmrrdcolors[hostcolorindex]+":GPU"+indexstr+":STACK"))
                                 areastrings.append(str("GPRINT:avg"+indexstr+":%.0lf%s"))
                                 totalstrings += ",GPU"+indexstr+",+"
                         index += 1
+                        hostcolorindex += 1
 
                 gprintstrings.append(str("GPRINT:Average:Average %.0lf%S\l"))
 
@@ -234,7 +245,7 @@ def cgmrrdgetdata():
                         for timemarker in cgmrrdtimepostfix:
                                 cgmrrdgraphhashfilenamefull=str(cgmrrdhashratefilename+"_"+host["hostname"]+"_"+host["port"]+"_"+timemarker+cgmrrddotimage)
                                 print "Creating graph image: "+cgmrrdgraphhashfilenamefull
-                                rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphhashfilenamefull), "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh), "-l", "0", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "Hashes/s", defstrings, cdefstrings, averagestrings, areastrings, totalstrings, totalaveragestrings, totalaveragelinestrings, gprintstrings)
+                                rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphhashfilenamefull), "-a", fileformatstr, "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh), "-l", "0", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "Hashes/s", defstrings, cdefstrings, averagestrings, areastrings, totalstrings, totalaveragestrings, totalaveragelinestrings, gprintstrings)
                 except:
                         print "Cannot create graph image: "+cgmrrdgraphhashfilenamefull
 
@@ -244,17 +255,17 @@ def cgmrrdgetdata():
                         rrdtool.update(cgmrrdtemperaturefilenamefull, temperaturestring)
                 except:
                         print "Cannot update rrd file: "+cgmrrdtemperaturefilenamefull+" with "+temperaturestring
-                        try:
-                                os.path.exists(cgmrrdtemperaturefilenamefull)
+
+                        if os.path.exists(cgmrrdtemperaturefilenamefull):
                                 print "Rrd file exsists. Something is wrong."
                                 exit(1)
+
+                        try:
+                                print "Creating rrd file: "+cgmrrdtemperaturefilenamefull
+                                rrdtool.create(cgmrrdtemperaturefilenamefull, "--start", currentlocaltime, rrddatasourcegauge + cgmrrdrradefs)
                         except:
-                                try:
-                                        print "Creating rrd file: "+cgmrrdtemperaturefilenamefull
-                                        rrdtool.create(cgmrrdtemperaturefilenamefull, "--start", currentlocaltime, rrddatasourcegauge + cgmrrdrradefs)
-                                except:
-                                        print "Cannot create rrd file: "+cgmrrdtemperaturefilenamefull+":"+str(rrdtool.error())
-                                        exit(1)
+                                print "Cannot create rrd file: "+cgmrrdtemperaturefilenamefull+":"+str(rrdtool.error())
+                                exit(1)
 
 ### Fetch RRD TemperatureHistory
 
@@ -273,6 +284,7 @@ def cgmrrdgetdata():
                 averagestrings = []
                 maxstrings = []
                 index = 0
+                hostcolorindex = colorindex
 
                 for device in host["Devs"]["DEVS"]:
                         indexstr = str(index)
@@ -280,16 +292,21 @@ def cgmrrdgetdata():
                                 defstrings.append(str("DEF:GPU"+indexstr+"="+cgmrrdtemperaturefilenamefull+":GPU"+indexstr+":AVERAGE"))
                                 averagestrings.append(str("VDEF:avg"+indexstr+"=GPU"+indexstr+",AVERAGE"))
                                 maxstrings.append(str("VDEF:max"+indexstr+"=GPU"+indexstr+",MAXIMUM"))
-                                linestrings.append(str("LINE1:GPU"+indexstr+cgmrrdcolors[index]+":GPU"+indexstr))
+                                linestrings.append(str("LINE1:GPU"+indexstr+cgmrrdcolors[hostcolorindex]+":GPU"+indexstr))
                                 linestrings.append(str("GPRINT:avg"+indexstr+":Avg %.1lfC"))
                                 linestrings.append(str("GPRINT:max"+indexstr+":Max %.1lfC"))
                         index += 1
+                        hostcolorindex += 1
+
+                linestrings.append(str("COMMENT:\l"))
+
+                colorindex = hostcolorindex
 
                 try:
                         for timemarker in cgmrrdtimepostfix:
                                 cgmrrdgraphtemperaturefilenamefull=str(cgmrrdtemperaturefilename+"_"+host["hostname"]+"_"+host["port"]+"_"+timemarker+cgmrrddotimage)
                                 print "Creating graph image: "+cgmrrdgraphtemperaturefilenamefull
-                                rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphtemperaturefilenamefull), "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh), "-l", "60", "-u", "90", "-r", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "C", defstrings, averagestrings, maxstrings, linestrings)
+                                rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphtemperaturefilenamefull), "-a", fileformatstr, "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh), "-l", "60", "-u", "90", "-r", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "C", defstrings, averagestrings, maxstrings, linestrings)
                 except:
                         print "Cannot create graph image: "+cgmrrdgraphtemperaturefilenamefull
 
@@ -328,7 +345,7 @@ def cgmrrdgetdata():
                 for timemarker in cgmrrdtimepostfix:
                         cgmrrdgraphhashfilenamefull=str(cgmrrdtotalgraphfilename+"_"+timemarker+cgmrrddotimage)
                         print "Creating graph image: "+cgmrrdgraphhashfilenamefull
-                        rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphhashfilenamefull), "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh), "-l", "0", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "Hashes/s", defstrings, cdefstrings, averagestrings, areastrings, totalstrings, totalaveragestrings, totalaveragelinestrings, gprintstrings)
+                        rrdtool.graph(str(cgmhosts["wwwdir"]+"/"+cgmrrdgraphhashfilenamefull), "-a", fileformatstr, "-w", str(cgmrrdgraphw), "-h", str(cgmrrdgraphh * 2), "-l", "0", "--start", cgmrrdtimepostfix[timemarker], "--legend-position", "north", "--vertical-label", "Hashes/s", defstrings, cdefstrings, averagestrings, areastrings, totalstrings, totalaveragestrings, totalaveragelinestrings, gprintstrings)
         except:
                 print "Cannot create graph image: "+cgmrrdgraphhashfilenamefull
 
