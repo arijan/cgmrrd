@@ -12,11 +12,11 @@ Probably the only notable difference between this one and all other software out
 
 Shortcommings:
 - it uses rrd with all quirks of that software
-- no dynamic charting at this point in time I'm affraid
+- no dynamic charting at this point in time I'm affraid except if you use graph.html as per below
 - probably there are a few bugs out there so please let me know if you find any. My regular email address is arijan at gmail ok?
 - API calls are not asynchronous
 - did not polish html styling
-- not "autorefresh" of the web page yet
+- not "autorefresh" of the web page yet except if you use graph.html as per below
 
 This script uses CGminerAPI developed by Thomas Sileo: http://thomassileo.com/blog/2013/09/17/playing-with-python-and-cgminer-rpc-api/
 
