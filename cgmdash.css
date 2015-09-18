@@ -1,0 +1,46 @@
+table, tr, th, td {
+ border: 0px solid #E0E0E0;
+ border-collapse: collapse;
+ text-align: left;
+ vertical-align: top;
+ padding: 6px;
+ font-size: 8pt;
+ font-family: helvetica;
+}
+table.row {
+  background: #4070F8;
+}
+table.rack {
+  background: #60A0F8;
+}
+table.shelf {
+  background: #A0D0F8;
+}
+table.shelf > tbody > tr:nth-child(even) {
+  height: 300px;
+}
+table.hostup {
+  border: 3px solid #A0C0A0;
+  background: #F0F8F0;
+}
+table.hostdown {
+  border: 3px solid #F08010;
+  background: #F84040;
+}
+table.gpu {
+  background: #D8F8D0;
+}
+td.hwerr {
+  background: #F8F040;
+}
+td.hitemp {
+  background: #F8A040;
+}
+td.rej {
+  background: #F88040;
+}
+table.hostup td, table.hostdown td {
+  padding: 1px;
+  padding-right: 4px;
+  padding-left: 4px;
+}

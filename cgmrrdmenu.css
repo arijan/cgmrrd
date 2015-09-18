@@ -1,0 +1,19 @@
+table, th, tr, td {
+ border: 1px solid #E0E0E0;
+ border-collapse: collapse;
+ text-align: left;
+ padding: 4px;
+ width: 100%
+}
+tr {
+ background: #E0F0E0;
+}
+tr.False {
+ background: #E8F8E8;
+}
+th {
+ background: #D0E0D0;
+}
+img {
+ height: 75px;
+}

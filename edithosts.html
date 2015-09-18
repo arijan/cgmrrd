@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="jsoneditor.min.css">
+	<script type="text/javascript" src="jsoneditor.min.js"></script>
+</head>
+<body>
+	<div id="cgminerhostsjsoneditor"></div>
+	
+	<script type="text/javascript" >
+	var container = document.getElementById("cgminerhostsjsoneditor");
+	// create save button
+	var SaveConfigButton = document.createElement("BUTTON");
+	var text = document.createTextNode("Save Hosts");
+	SaveConfigButton.appendChild(text);
+	SaveConfigButton.onclick = function() {
+		// get json
+		jsonFile = new XMLHttpRequest();
+		jsonFile.onerror = function(e) {
+			alert("Error saving file: "+ e.target.status);
+		};
+		jsonFile.open("put","../cgi-bin/cgmrrdV2/puthosts.py",true);
+		jsonFile.send(editor.getText());
+	};
+	container.appendChild(SaveConfigButton);
+	// create the editor
+	var editor = new JSONEditor(container, { mode: 'tree' });
+
+	// set json
+	jsonFile = new XMLHttpRequest();
+	jsonFile.onload = function() {
+		editor.set(JSON.parse(jsonFile.responseText));
+	};
+	jsonFile.open("get","../cgi-bin/cgmrrdV2/gethosts.py",true);
+	jsonFile.send();
+	</script>
+</body>
+</html>
