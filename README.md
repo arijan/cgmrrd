@@ -16,7 +16,10 @@ Shortcommings:
 - probably there are a few bugs out there so please let me know if you find any. My regular email address is arijan at gmail ok?
 
 This script uses CGminerAPI developed by Thomas Sileo: http://thomassileo.com/blog/2013/09/17/playing-with-python-and-cgminer-rpc-api/
-It also uses 'public domain' script 'markup.py' v 1.9 by Roel Mathys, Brian Blais, Davide Cesari, Carsten Bock, Fred Gansevles, Thorsten Kampe, Jason Moiron, Jerry Davis, Morten Kjeldgaard. Please see http://markup.sourceforge.net
+
+It also uses 'public domain' script 'markup.py' v 1.9 by Roel Mathys, Brian Blais, Davide Cesari, Carsten Bock, Fred Gansevles, Thorsten Kampe, Jason Moiron, Jerry Davis, Morten Kjeldgaard. Please see http://markup.sourceforge.net.
+
+Also 'jsoneditor.min.js' v3.1.2 by  Jos de Jong is used.
 
 Please use it, it is a free software, comment, and of course if you feel like it tip me at: LTC LTyruxjwcKdqcEWiaArEYFWe6TKNs341Us or:  BTC 182boxM3bJxsokcdAtXwVJejCpzL1MAvYq
 
