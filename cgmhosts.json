@@ -1,7 +1,0 @@
-{
-    "hosts":[
-        { "hostname":"giga.siopti.com", "row":1, "rack":"1", "shelf":"1" },
-        { "hostname":"lite.siopti.com", "row":1, "rack":"2", "shelf":"1" },
-        { "hostname":"mega.siopti.com", "row":1, "rack":"3", "shelf":"1" }
-    ]
-}
