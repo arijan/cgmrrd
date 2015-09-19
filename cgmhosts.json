@@ -1,18 +1,7 @@
 {
-<<<<<<< HEAD
     "hosts":[
         { "hostname":"giga.siopti.com", "row":1, "rack":"1", "shelf":"1" },
         { "hostname":"lite.siopti.com", "row":1, "rack":"2", "shelf":"1" },
         { "hostname":"mega.siopti.com", "row":1, "rack":"3", "shelf":"1" }
     ]
-=======
- "hosts": [
-           { "hostname":"bit.siopti.com", "port":"4028" },
-           { "hostname":"giga.siopti.com" },
-           { "hostname":"coin.siopti.com" },
-           { "hostname":"lite.siopti.com" },
-           { "hostname":"mega.siopti.com" }
-          ],
- "wwwdir": "/var/www/cgmrrd"
->>>>>>> dd1802420fcf302cbb78773e06b05709b0a52a26
 }
